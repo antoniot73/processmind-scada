@@ -1,0 +1,23 @@
+[
+    {
+        "id": "c45349bc9b50aa50",
+        "type": "function",
+        "z": "7599b5e702504de3",
+        "name": "Simular tanque termico",
+        "func": "let t = context.get('t') || 0;\nt += 1;\ncontext.set('t', t);\n\nlet temperature = 78 + 4 * Math.sin(t / 8) + (Math.random() - 0.5) * 1.6;\nlet pressure = 2.0 + 0.15 * Math.sin(t / 10) + (Math.random() - 0.5) * 0.1;\nlet flow = 45 + 3 * Math.sin(t / 6) + (Math.random() - 0.5) * 1.8;\nlet level = 65 + 5 * Math.sin(t / 12) + (Math.random() - 0.5) * 2.4;\nlet power = 70 + 6 * Math.sin(t / 9) + (Math.random() - 0.5) * 3;\nlet vibration = Math.max(0, 1.5 + 0.2 * Math.sin(t / 5) + (Math.random() - 0.5) * 0.3);\n\npower = Math.min(Math.max(power, 0), 100);\n\nlet energy = Math.max(\n    0,\n    4.0 + 0.08 * power + 0.03 * temperature + 0.60 * pressure - 0.015 * flow\n);\n\nlet quality = 96\n    - Math.abs(temperature - 78) * 0.75\n    - Math.abs(pressure - 2.0) * 5.0\n    - Math.abs(flow - 45) * 0.25\n    - Math.max(0, vibration - 2.0) * 4.0;\n\nquality = Math.min(Math.max(quality, 0), 100);\n\nmsg.topic = \"factory/demo/tank01/telemetry\";\n\nmsg.payload = {\n    asset_id: \"tank01\",\n    timestamp: new Date().toISOString(),\n    temperature_c: Number(temperature.toFixed(2)),\n    pressure_bar: Number(pressure.toFixed(2)),\n    flow_lpm: Number(flow.toFixed(2)),\n    level_pct: Number(level.toFixed(2)),\n    heater_power_pct: Number(power.toFixed(2)),\n    vibration_mm_s: Number(vibration.toFixed(2)),\n    energy_kwh: Number(energy.toFixed(2)),\n    product_quality_pct: Number(quality.toFixed(2))\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 1,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 100,
+        "wires": [
+            [
+                "341b016b38aaeb8b",
+                "1c4a296b74e8843d"
+            ]
+        ]
+    }
+]
