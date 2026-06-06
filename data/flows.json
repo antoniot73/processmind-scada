@@ -1,5 +1,74 @@
 [
     {
+        "id": "7599b5e702504de3",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "1adf808855039352",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "d7803de0bcd24ef0a342e4396a020c56.s1.eu.hivemq.cloud",
+        "port": "8883",
+        "tls": "",
+        "clientid": "node-red-optiscada-clean",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "cd04d52b923c2704",
+        "type": "inject",
+        "z": "7599b5e702504de3",
+        "name": "Cada 5 segundos",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 270,
+        "y": 100,
+        "wires": [
+            [
+                "c45349bc9b50aa50"
+            ]
+        ]
+    },
+    {
         "id": "c45349bc9b50aa50",
         "type": "function",
         "z": "7599b5e702504de3",
@@ -19,5 +88,78 @@
                 "1c4a296b74e8843d"
             ]
         ]
+    },
+    {
+        "id": "341b016b38aaeb8b",
+        "type": "debug",
+        "z": "7599b5e702504de3",
+        "name": "telemetría",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 740,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "1c4a296b74e8843d",
+        "type": "mqtt out",
+        "z": "7599b5e702504de3",
+        "name": "Publicar HiveMQ",
+        "topic": "factory/demo/tank01/telemetry",
+        "qos": "1",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "1adf808855039352",
+        "x": 770,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "2248bef3a2c848cd",
+        "type": "mqtt in",
+        "z": "7599b5e702504de3",
+        "name": "Recomendacion Streamlit",
+        "topic": "factory/demo/tank01/recommendation",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "1adf808855039352",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 310,
+        "y": 280,
+        "wires": [
+            [
+                "ac857c9642dcfb68"
+            ]
+        ]
+    },
+    {
+        "id": "ac857c9642dcfb68",
+        "type": "debug",
+        "z": "7599b5e702504de3",
+        "name": "recomendacion recibida",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 710,
+        "y": 280,
+        "wires": []
     }
 ]
