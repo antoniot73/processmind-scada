@@ -55,8 +55,8 @@
         ],
         "repeat": "5",
         "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
+        "once": true,
+        "onceDelay": 2,
         "topic": "",
         "payload": "",
         "payloadType": "date",
@@ -73,7 +73,7 @@
         "type": "function",
         "z": "7599b5e702504de3",
         "name": "Simular tanque termico",
-        "func": "msg.topic = \"factory/demo/tank01/telemetry\";\n\nmsg.payload = {\n    asset_id: \"tank01\",\n    timestamp: new Date().toISOString(),\n    temperature_c: 78.5,\n    pressure_bar: 2.1,\n    flow_lpm: 45.2,\n    level_pct: 65.0,\n    heater_power_pct: 70.0,\n    vibration_mm_s: 1.5,\n    energy_kwh: 12.8,\n    product_quality_pct: 93.5\n};\n\nreturn msg;",
+        "func": "msg.topic = \"factory/demo/tank01/telemetry\";\n\nmsg.payload = {\n    asset_id: \"tank01\",\n    timestamp: new Date().toISOString(),\n    temperature_c: 78.5,\n    pressure_bar: 2.1,\n    flow_lpm: 45.2,\n    level_pct: 65.0,\n    heater_power_pct: 70.0,\n    vibration_mm_s: 1.5,\n    energy_kwh: 12.8,\n    product_quality_pct: 93.5\n};\n\nlet telemetryCount = global.get(\"telemetry_count\") || 0;\ntelemetryCount += 1;\n\nglobal.set(\"telemetry_count\", telemetryCount);\nglobal.set(\"last_telemetry_at\", msg.payload.timestamp);\nglobal.set(\"last_telemetry_topic\", msg.topic);\nglobal.set(\"node_red_ready\", true);\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -160,6 +160,54 @@
         "statusType": "auto",
         "x": 710,
         "y": 280,
+        "wires": []
+    },
+    {
+        "id": "healthz_http_in",
+        "type": "http in",
+        "z": "7599b5e702504de3",
+        "name": "Health check READY",
+        "url": "/healthz",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 280,
+        "y": 420,
+        "wires": [
+            [
+                "healthz_function"
+            ]
+        ]
+    },
+    {
+        "id": "healthz_function",
+        "type": "function",
+        "z": "7599b5e702504de3",
+        "name": "Estado Node-RED + Telemetria",
+        "func": "const now = new Date();\nconst lastTelemetryAt = global.get(\"last_telemetry_at\") || null;\nconst telemetryCount = global.get(\"telemetry_count\") || 0;\nconst telemetryTopic = global.get(\"last_telemetry_topic\") || \"factory/demo/tank01/telemetry\";\n\nlet ageSeconds = null;\nlet telemetryFresh = false;\n\nif (lastTelemetryAt !== null) {\n    ageSeconds = Math.round((now.getTime() - new Date(lastTelemetryAt).getTime()) / 1000);\n    telemetryFresh = ageSeconds <= 20;\n}\n\nconst isReady = telemetryCount > 0 && telemetryFresh;\n\nmsg.statusCode = isReady ? 200 : 503;\n\nmsg.headers = {\n    \"Content-Type\": \"application/json\",\n    \"Cache-Control\": \"no-store\"\n};\n\nmsg.payload = {\n    service: \"processmind-scada-ml\",\n    status: isReady ? \"READY\" : \"STARTING\",\n    node_red: \"RUNNING\",\n    mqtt_flow: telemetryCount > 0 ? \"ACTIVE\" : \"WAITING_FIRST_TELEMETRY\",\n    telemetry_fresh: telemetryFresh,\n    telemetry_count: telemetryCount,\n    telemetry_topic: telemetryTopic,\n    last_telemetry_at: lastTelemetryAt,\n    telemetry_age_seconds: ageSeconds,\n    timestamp: now.toISOString()\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 420,
+        "wires": [
+            [
+                "healthz_http_response"
+            ]
+        ]
+    },
+    {
+        "id": "healthz_http_response",
+        "type": "http response",
+        "z": "7599b5e702504de3",
+        "name": "Responder /healthz",
+        "statusCode": "",
+        "headers": {},
+        "x": 820,
+        "y": 420,
         "wires": []
     }
 ]
